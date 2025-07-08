@@ -1,3 +1,7 @@
+mod cmdline;
+
 fn main() {
-    println!("Hello, world!");
+    let data_folder = cmdline::parse();
+
+    println!("data_folder={}", data_folder);
 }
