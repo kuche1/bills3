@@ -13,7 +13,6 @@ fn main() {
         let (mut year, mut month) = date::get();
 
         loop {
-            // let (income, expenditures) = toml::read(&data_folder, year, month);
             let d = match toml::read(&data_folder, year, month) {
                 Some(v) => v,
                 None => break,
