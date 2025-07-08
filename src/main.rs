@@ -2,8 +2,6 @@ mod cmdline;
 mod date;
 mod toml;
 
-use std::{error::Error, ops::SubAssign};
-
 fn main() {
     let mut data = vec![];
 
