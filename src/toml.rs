@@ -62,16 +62,16 @@ fn value_sum(value: Value) -> f32 {
     }
 }
 
-pub fn read(data_folder: &str, year: i32, month: u32) -> (f32, Vec<f32>) {
+pub fn read(data_folder: &str, year: i32, month: u32) -> Option<(f32, Vec<f32>)> {
     let date = chrono::NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let days_in_month = date.days_in_month();
 
     let path = &format!("{}/{}.{:02}.toml", data_folder, year, month);
 
-    let data = fs::read_to_string(path)
-        .map_err(|err| panic!("can't open file `{}`: {}", path, err))
-        .ok()
-        .unwrap();
+    let data = match fs::read_to_string(path).ok() {
+        None => return None,
+        Some(v) => v,
+    };
 
     let data = data.parse::<Table>().ok().unwrap();
 
@@ -126,5 +126,5 @@ pub fn read(data_folder: &str, year: i32, month: u32) -> (f32, Vec<f32>) {
 
     income -= expenditures_monthly;
 
-    (income, expenditures_regular)
+    Some((income, expenditures_regular))
 }
