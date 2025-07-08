@@ -1,12 +1,15 @@
 mod cmdline;
 mod date;
+mod toml;
 
-fn main() {
+use std::error::Error;
+
+fn main() -> Result<(), Box<dyn Error>> {
     let data_folder = cmdline::parse();
-
-    println!("data_folder={}", data_folder);
 
     let (year, month) = date::get();
 
-    println!("year={} month={}", year, month);
+    let toml_data = toml::read(&data_folder, year, month)?;
+
+    Ok(())
 }
