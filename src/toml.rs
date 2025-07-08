@@ -9,6 +9,7 @@ pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(), Box<dyn Erro
         fs::read_to_string(path).map_err(|err| format!("can't open file `{}`: {}", path, err))?;
 
     let data = data.parse::<Table>()?;
+    println!("data={}", data);
 
     Ok(())
 }
