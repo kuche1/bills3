@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (year, month) = date::get();
 
-    let toml_data = toml::read(&data_folder, year, month)?;
+    let (income, expenditures) = toml::read(&data_folder, year, month)?;
 
     Ok(())
 }

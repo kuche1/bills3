@@ -62,7 +62,7 @@ fn value_sum(value: Value) -> Result<f32, Box<dyn Error>> {
     }
 }
 
-pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(), Box<dyn Error>> {
+pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(f32, Vec<f32>), Box<dyn Error>> {
     let date = chrono::NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let days_in_month = date.days_in_month();
 
@@ -118,9 +118,7 @@ pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(), Box<dyn Erro
         }
     }
 
-    println!("income={}", income);
-    println!("expenditures_monthly={}", expenditures_monthly);
-    println!("expenditures_regular={:?}", expenditures_regular);
+    income -= expenditures_monthly;
 
-    Ok(())
+    Ok((income, expenditures_regular))
 }
