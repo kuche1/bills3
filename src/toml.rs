@@ -34,44 +34,46 @@ impl NaiveDateExt for chrono::NaiveDate {
 }
 ///////////// ^^^^^
 
-fn value_sum(value: Value) -> Result<f32, Box<dyn Error>> {
+fn value_sum(value: Value) -> f32 {
     match value {
-        Value::Integer(v) => return Ok(v as f32),
+        Value::Integer(v) => return v as f32,
 
-        Value::Float(v) => return Ok(v as f32),
+        Value::Float(v) => return v as f32,
 
         Value::Array(v) => {
             let mut sum: f32 = 0.0;
             for value in v {
-                sum += value_sum(value)?;
+                sum += value_sum(value);
             }
-            return Ok(sum);
+            return sum;
         }
 
         Value::Table(v) => {
             let mut sum: f32 = 0.0;
             for (_key, value) in v {
-                sum += value_sum(value)?;
+                sum += value_sum(value);
             }
-            return Ok(sum);
+            return sum;
         }
 
         _ => {
-            return Err(format!("unsupported value: `{value}`").into());
+            panic!("unsupported value: `{value}`");
         }
     }
 }
 
-pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(f32, Vec<f32>), Box<dyn Error>> {
+pub fn read(data_folder: &str, year: i32, month: u32) -> (f32, Vec<f32>) {
     let date = chrono::NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let days_in_month = date.days_in_month();
 
     let path = &format!("{}/{}.{:02}.toml", data_folder, year, month);
 
-    let data =
-        fs::read_to_string(path).map_err(|err| format!("can't open file `{}`: {}", path, err))?;
+    let data = fs::read_to_string(path)
+        .map_err(|err| panic!("can't open file `{}`: {}", path, err))
+        .ok()
+        .unwrap();
 
-    let data = data.parse::<Table>()?;
+    let data = data.parse::<Table>().ok().unwrap();
 
     let mut income: f32 = 0.0;
     let mut expenditures_monthly: f32 = 0.0;
@@ -80,11 +82,11 @@ pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(f32, Vec<f32>),
     for (item_name, item_value) in data {
         match item_name.as_str() {
             "INCOME" => {
-                income += value_sum(item_value)?;
+                income += value_sum(item_value);
             }
 
             "EXPENDITURES-MONTHLY" => {
-                expenditures_monthly += value_sum(item_value)?;
+                expenditures_monthly += value_sum(item_value);
             }
 
             "EXPENDITURES-REGULAR" => match item_value {
@@ -92,33 +94,37 @@ pub fn read(data_folder: &str, year: i32, month: u32) -> Result<(f32, Vec<f32>),
                     for (day, money) in value {
                         let day: usize = day
                             .parse()
-                            .map_err(|_| format!("invalid day of month: `{day}`"))?;
+                            .map_err(|_| panic!("invalid day of month: `{day}`"))
+                            .ok()
+                            .unwrap();
 
                         let idx = day
                             .checked_add_signed(-1)
-                            .ok_or_else(|| format!("first day of month is 1"))?;
+                            .ok_or_else(|| panic!("first day of month is 1"))
+                            .ok()
+                            .unwrap();
 
-                        let money = value_sum(money)?;
+                        let money = value_sum(money);
 
                         match expenditures_regular.get_mut(idx) {
-                            None => return Err(format!("invalid day of month: `{}`", day).into()),
+                            None => panic!("invalid day of month: `{}`", day),
                             Some(item) => *item += money,
                         }
                     }
                 }
 
                 _ => {
-                    return Err(format!("unsupported item value: `{item_value}`").into());
+                    panic!("unsupported item value: `{item_value}`");
                 }
             },
 
             _ => {
-                return Err(format!("unknown item name: `{}`", item_name).into());
+                panic!("unknown item name: `{}`", item_name);
             }
         }
     }
 
     income -= expenditures_monthly;
 
-    Ok((income, expenditures_regular))
+    (income, expenditures_regular)
 }
