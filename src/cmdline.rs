@@ -8,7 +8,7 @@ struct Args {
     data_folder: String,
 }
 
-pub fn main() -> String {
+pub fn parse() -> String {
     let args = Args::parse();
     args.data_folder
 }
