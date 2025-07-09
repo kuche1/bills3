@@ -2,6 +2,8 @@ mod cmdline;
 mod date;
 mod toml;
 
+use colored::*;
+
 fn main() {
     let mut data = vec![];
 
@@ -35,10 +37,16 @@ fn main() {
 
             money -= day_expenditure;
 
-            println!(
+            let msg = format!(
                 "{}.{:02}.{:02} -> {:6.2} -> {:7.2}",
                 year, month, day, day_expenditure, money
             );
+
+            if day == 1 {
+                println!("{}", msg.green());
+            } else {
+                println!("{}", msg);
+            }
         }
     }
 }
