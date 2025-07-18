@@ -30,7 +30,8 @@ fn main() {
     let mut money = 0.0;
 
     for (year, month, (income, expenditures)) in data.into_iter().rev() {
-        money += income;
+        // money += income;
+        money = income;
 
         for (day_idx, day_expenditure) in expenditures.iter().enumerate() {
             let day = day_idx + 1;
